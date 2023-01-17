@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
 </head>
 <body class="container" style="background: #037759">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="height: 50px; width: 1000px;margin-left: 50px">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="height: 50px; width: 1000px; margin-left: 50px">
     <div class="container-fluid">
         <a class="navbar-brand" href="/dashboard" style="font-size: 24px">iSport</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,23 +37,28 @@
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                 </svg></li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/account/${userId}" tabindex="-1" aria-disabled="true">Account</a>
+                    <a class="nav-link active" href="/account/${user.id}" tabindex="-1" aria-disabled="true">Account</a>
                 </li>
                 <li class="nav-item" style="margin-top: 6px">
                     <button style="font-size: 18px; font-weight: 600; color: white; padding: 0px" class="btn btn-danger">
-                        <span class="badge badge-light"><c:out value="${numberOfMessages}"/></span>
+                        <span class="badge badge-light">
+                            <c:if test="${numberOfMessages == null}">0</c:if>
+                            <c:out value="${numberOfMessages}"/></span>
                     </button>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/logout" tabindex="-1" aria-disabled="true">Logout</a>
+                    <form id="logoutForm" method="POST" action="/logout">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <input type="submit" value="Logout" style="border: none; background: transparent; color: white; font-weight: 500; width: 75px"/>
+                    </form>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
-<div style="font-weight: 600; width: 1000px; height: 580px; background: #ebd402;margin-left: 50px; padding: 20px; font-size: 20px">
+<div style="font-weight: 600; width: 1000px; height: 580px; background: #ebd402;margin-left: 50px; padding: 20px; font-size: 18px">
     <h1 style="border-bottom: 2px solid black">Welcome ${user.firstName}</h1>
-    <p>Today is ${todaysDate} and you have ${numberOfEvents}
+    <p style="font-size: 20px">Today is ${todaysDate} and you have ${numberOfEvents}
         <span><c:if test="${numberOfEvents==1}">event</c:if></span>
         <span><c:if test="${numberOfEvents!=1}">events</c:if></span> today:</p>
     <table class="table table-secondary table-striped table-hover">
@@ -68,14 +73,14 @@
             <tr>
                 <td><a href="/event/${event.id}" style="color: black; text-decoration: none">${event.eventName}</a></td>
                 <td>${event.location}</td>
-                <td>${event.getNumberOfAttendees()}/${event.attendees}</td>
+                <td>${event.getNumberOfAttenders()}/${event.attendees}</td>
                 <td>${event.time}</td>
             </tr>
         </tbody>
     </c:forEach>
     </table>
 
-    <p>Here are your joined future events:</p>
+    <p style="font-size: 20px">Here are your joined future events:</p>
     <div class="scroll">
         <table class="table table-secondary table-striped table-hover">
             <thead>
@@ -90,7 +95,7 @@
                         <tr>
                             <td><a href="/event/${event.id}" style="color: black; text-decoration: none">${event.eventName}</a></td>
                             <td>${event.location}</td>
-                            <td>${event.getNumberOfAttendees()}/${event.attendees}</td>
+                            <td>${event.getNumberOfAttenders()}/${event.attendees}</td>
                             <td>${event.fullDateFormatter()}</td>
                         </tr>
                     </tbody>

@@ -39,10 +39,13 @@
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                 </svg></li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/account/${userId}" tabindex="-1" aria-disabled="true">Account</a>
+                    <a class="nav-link active" href="/account/${user.id}" tabindex="-1" aria-disabled="true">Account</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/logout" tabindex="-1" aria-disabled="true">Logout</a>
+                    <form id="logoutForm" method="POST" action="/logout">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <input type="submit" value="Logout" style="border: none; background: transparent; color: white; font-weight: 500; width: 70px"/>
+                    </form>
                 </li>
             </ul>
         </div>
@@ -53,7 +56,7 @@
         const location = { lat: <c:out value="${event.latitude}"/>, lng: <c:out value="${event.longitude}"/> };
 
         const map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 4,
+            zoom: 16,
             center: location,
         });
 
@@ -80,19 +83,22 @@
             </ol>
         </div>
         <div>
-            <h2 style="margin-left: 220px; background: transparent">Location</h2>
-            <div id="map" style="margin-left: 40px; height: 400px; width: 500px"></div>
+            <h2 style="margin-left: 220px">Location</h2>
+            <div id="map" style="margin-left: 40px; height: 400px; width: 500px; background: transparent"></div>
 
-            <div>
-                <c:if test="${userId == event.creator.id}">
-                    <form action="/event/delete/${event.id}">
-                        <div style="margin-left: 400px; margin-top: 40px"><button style="box-shadow: 1px 1px black; border: 2px solid black; font-size: 18px; font-weight: 600; color: white; padding: 3px 20px" class="btn btn-danger">Delete Event!</button></div>
+            <c:if test="${user.id == event.creator.id}">
+                <div class="d-flex align-content-center">
+                    <form action="/event/edit/${event.id}">
+                        <div style="margin-left: 280px; margin-top: 40px"><button style="box-shadow: 1px 1px black; border: 2px solid black; font-size: 18px; font-weight: 600; color: white; padding: 3px 20px" class="btn btn-secondary">Edit</button></div>
                     </form>
-                </c:if>
-            </div>
+                    <form action="/event/delete/${event.id}">
+                        <div style="margin-left: 20px; margin-top: 40px"><button style="box-shadow: 1px 1px black; border: 2px solid black; font-size: 18px; font-weight: 600; color: white; padding: 3px 22px" class="btn btn-danger">Delete Event!</button></div>
+                    </form>
+                </div>
+            </c:if>
         </div>
     </div>
-
+    <c:if test="${user.getEvents().contains(event)}">
     <div style="border: 3px solid black; padding: 5px; overflow-y: auto; height: 150px; margin-top: 10px">
         <div style="margin-bottom: 5px">Messages:</div>
         <c:forEach var="message" items="${messages}">
@@ -103,8 +109,8 @@
         <form:form action="/event/message/${event.id}" method="post" modelAttribute="message">
             <div class="d-flex align-content-center" style="margin-top: 10px">
                 <div class="form-floating col-sm-11" style="font-size: 18px">
-                    <form:textarea path="content" type="number" class="form-control" placeholder="Write a message"></form:textarea>
-                    <form:label path="content">Write a message</form:label>
+                    <form:textarea path="content" type="number" class="form-control" placeholder="Write a message" style="font-weight: 600"></form:textarea>
+                    <form:label path="content" style="font-weight: 600">Write a message</form:label>
                     <div><form:errors path="content" class="text-danger"/></div>
                 </div>
                 <div style="margin-left: 3px; margin-top: 1px">
@@ -112,10 +118,11 @@
                 </div>
             </div>
         </form:form>
+    </c:if>
 </div>
 <footer class="text-center text-white m-1 text-decoration-underline">Copyright © 2022 - Eldorado Agalliu</footer>
 <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&v=weekly"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHQV4LenUiXtgJlf2HbyAMEBl3cSsHGi0&callback=initMap&v=weekly"
         defer
 ></script>
 </body>

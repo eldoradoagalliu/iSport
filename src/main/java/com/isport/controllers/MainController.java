@@ -1,21 +1,24 @@
 package com.isport.controllers;
 
 import com.isport.models.Event;
-import com.isport.models.LoginUser;
 import com.isport.models.Message;
 import com.isport.models.User;
 import com.isport.services.EventService;
 import com.isport.services.MessageService;
 import com.isport.services.UserService;
+import com.isport.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -26,59 +29,90 @@ public class MainController {
     private UserService userService;
 
     @Autowired
+    private UserValidator userValidator;
+
+    @Autowired
     private EventService eventService;
 
     @Autowired
     private MessageService messageService;
 
-    @GetMapping("/")
-    public String index(Model model) {
-        model.addAttribute("newUser", new User());
-        model.addAttribute("newLogin", new LoginUser());
-        return "index";
+    @RequestMapping("/")
+    public String index(Principal principal, Model model) {
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "register";
+        }
+        model.addAttribute("user", user);
+
+        if(user != null) {
+            user.setLastLogin(new Date());
+            userService.updateUser(user);
+            // Admin will be redirected to the Admin Page
+            if(user.getRoles().get(0).getName().contains("ROLE_ADMIN")){
+                model.addAttribute("currentUser", userService.findByEmail(email));
+                model.addAttribute("users", userService.getNonAdminUsers());
+                model.addAttribute("events", eventService.allEvents());
+                return "admin_dashboard";
+            }
+        }
+        //Normal users will be redirected to the Event Dashboard
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/register")
+    public String registerUser(@ModelAttribute("user") User user){
+        return "register";
     }
 
     @PostMapping("/register")
-    public String register(@Valid @ModelAttribute("newUser") User newUser, BindingResult result, Model model,
-                           HttpSession session) {
-        userService.register(newUser, result);
-
-        if (result.hasErrors()) {
-            model.addAttribute("newLogin", new LoginUser());
-            return "index";
-        } else {
-            session.setAttribute("userId", newUser.getId());
-            return "redirect:/";
+    public String register(@Valid @ModelAttribute("user") User user, BindingResult result, HttpServletRequest request) {
+        userValidator.validate(user, result);
+        String password = user.getPassword();
+        if(result.hasErrors()) {
+            return "register";
         }
-    }
-
-    @PostMapping("/login")
-    public String login(@Valid @ModelAttribute("newLogin") LoginUser newLogin, BindingResult result, Model model,
-                        HttpSession session) {
-        User user = userService.login(newLogin, result);
-
-        if (result.hasErrors()){
-            model.addAttribute("newUser", new User());
-            return "index";
+        // First user will be made Admin
+        if(userService.allUsers().size() == 0){
+            userService.newUser(user, "ROLE_ADMIN");
         }
         else{
-            session.setAttribute("userId", user.getId());
-            return "redirect:/dashboard";
+            userService.newUser(user, "ROLE_USER");
         }
-    }
-
-    @RequestMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
+        authWithHttpServletRequest(request, user.getEmail(), password);
         return "redirect:/";
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model,HttpSession session){
-            if(session.getAttribute("userId") == null){
-            return "redirect:/logout";
+    //An authentication method used for the sign in
+    public void authWithHttpServletRequest(HttpServletRequest request, String email, String password) {
+        try {
+            request.login(email, password);
+        } catch (ServletException e) {
+            System.out.println("Error while login: " + e);
         }
-        User user = userService.findById((Long) session.getAttribute("userId"));
+    }
+
+    @RequestMapping("/login")
+    public String login(@ModelAttribute("user") User user, @RequestParam(value="error", required=false) String error,
+                        @RequestParam(value="logout", required=false) String logout, Model model) {
+        if(error!=null) {
+            model.addAttribute("errorMessage","Invalid Credentials, Please try again.");
+        }
+        if(logout!=null) {
+            model.addAttribute("logoutMessage","Logout Successful!");
+        }
+        return "index";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Principal principal, Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
+        }
+
         Date todaysDate = new Date();
         List<Event> todaysEvents = eventService.getTodaysEvents(todaysDate);
         model.addAttribute("user", user);
@@ -90,33 +124,97 @@ public class MainController {
         return "dashboard";
     }
 
-    @GetMapping("/new")
-    public String add(@ModelAttribute("event") Event event, HttpSession session){
-        if(session.getAttribute("userId") == null){
-            return "redirect:/logout";
+    @GetMapping("/account/{id}")
+    public String userDetails(Principal principal, @PathVariable("id") Long id, Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
+        Date todaysDate = new Date();
+        model.addAttribute("user", userService.findById(id));
+        model.addAttribute("futureEvents", eventService.getEventsAfterDate(todaysDate));
+        return "user_details";
+    }
 
+    @GetMapping("/account/edit/{id}")
+    public String editUser(Principal principal, @PathVariable("id") Long userId, @ModelAttribute("user") User user,
+                           Model model){
+        String email = principal.getName();
+        User currentUser = userService.findByEmail(email);
+        if(currentUser == null){
+            return "redirect:/";
+        }
+        User editedUser = userService.findById(userId);
+        model.addAttribute("user", editedUser);
+        return "edit_user";
+    }
+
+    @RequestMapping("/account/edit/{id}")
+    public String editUser(Principal principal, @PathVariable("id") Long userId,
+                           @Valid @ModelAttribute("user") User editedUser, BindingResult result){
+        String email = principal.getName();
+        User currentUser = userService.findByEmail(email);
+        if(currentUser == null){
+            return "redirect:/";
+        }
+        if(result.hasErrors()){
+            return "edit_user";
+        }
+        else {
+            User user = userService.findById(userId);
+            editedUser.setPhotoURL(user.getPhotoURL());
+            editedUser.setEvents(user.getEvents());
+            editedUser.setEventsCreated(user.getEventsCreated());
+            editedUser.setMessages(user.getMessages());
+            editedUser.setRoles(user.getRoles());
+            editedUser.setCreatedAt(user.getCreatedAt());
+            userService.updateUser(editedUser);
+        }
+        return "redirect:/";
+    }
+
+    @RequestMapping("/account/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long userId){
+        User user = userService.findById(userId);
+        for(Message message : user.getMessages()){
+            messageService.deleteMessage(message);
+        }
+        for(int i = 0; i < user.getEventsCreated().size(); i++){
+            user.getEventsCreated().remove(i);
+        }
+        //To Fix remove methods
+        for(int i = 0; i < user.getEvents().size(); i++){
+            user.getEvents().remove(i);
+        }
+        userService.deleteUser(user);
+        return "redirect:/";
+    }
+
+    @GetMapping("/new")
+    public String add(Principal principal, @ModelAttribute("event") Event event, Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
+        }
+        model.addAttribute("user", user);
         return "new_event";
     }
 
     @PostMapping("/new")
-    public String addEvent(@Valid @ModelAttribute("event") Event event, BindingResult result,
-                           Model model,
-                           HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String addEvent(Principal principal, @Valid @ModelAttribute("event") Event event, BindingResult result,
+                           Model model){
+        String email = principal.getName();
+        User creator = userService.findByEmail(email);
+        if(creator == null){
+            return "redirect:/";
         }
-        Long userId = (Long) session.getAttribute("userId");
         if(result.hasErrors()){
             model.addAttribute("event", event);
             return "new_event";
         }
         else{
-            User creator = userService.findById(userId);
-
-            event.getDate().setHours(23);
-            event.getDate().setMinutes(59);
-
             Event newEvent = new Event(event.getEventName(), event.getLocation(), event.getLatitude(),
                     event.getLongitude(), event.getAttendees(), event.getDate(), timeFormatter(event.getTime()),
                     event.getDescription());
@@ -130,11 +228,14 @@ public class MainController {
     }
 
     @GetMapping("/event/{id}")
-    public String eventDetails(@ModelAttribute("message") Message message, @PathVariable("id") Long id, Model model,
-                               HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String eventDetails(Principal principal, @ModelAttribute("message") Message message, @PathVariable("id") Long id,
+                               Model model){
+        String email = principal.getName();
+        User creator = userService.findByEmail(email);
+        if(creator == null){
+            return "redirect:/";
         }
+        model.addAttribute("user", creator);
         Event event = eventService.findById(id);
 
         model.addAttribute("event", event);
@@ -143,14 +244,69 @@ public class MainController {
         return "event_details";
     }
 
-    @PostMapping("/event/message/{id}")
-    public String addMessage(@Valid @ModelAttribute("message") Message message, BindingResult result,
-                             @PathVariable("id") Long eventId,
-                             Model model, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    @GetMapping("/event/edit/{id}")
+    public String editEvent(Principal principal, @PathVariable("id") Long eventId, @ModelAttribute("event") Event event,
+                            Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
-        Long userId = (Long) session.getAttribute("userId");
+        Event editedEvent = eventService.findById(eventId);
+        model.addAttribute("event", editedEvent);
+        return "edit_event";
+    }
+
+    @RequestMapping("/event/edit/{id}")
+    public String editEvent(Principal principal, @PathVariable("id") Long eventId,
+                            @Valid @ModelAttribute("event") Event editedEvent, BindingResult result){
+        String email = principal.getName();
+        User currentUser = userService.findByEmail(email);
+        if(currentUser == null){
+            return "redirect:/";
+        }
+        if(result.hasErrors()){
+            return "edit_event";
+        }
+        else {
+            Event event = eventService.findById(eventId);
+            editedEvent.setCreator(event.getCreator());
+            editedEvent.setUsers(event.getUsers());
+            editedEvent.setMessages(event.getMessages());
+            editedEvent.setCreatedAt(event.getCreatedAt());
+            eventService.updateEvent(editedEvent);
+        }
+        return "redirect:/";
+    }
+
+    @RequestMapping("/event/delete/{id}")
+    public String deleteEvent(Principal principal, @PathVariable("id") Long eventId){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
+        }
+        Event event = eventService.findById(eventId);
+        List<Message> messages = messageService.eventMessages(eventId);
+
+        for(Message message : messages){
+            messageService.deleteMessage(message);
+        }
+        eventService.deleteEvent(event);
+        if(user.getRoles().get(0).getName().contains("ROLE_ADMIN")){
+            return "redirect:/";
+        }
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/event/message/{id}")
+    public String addMessage(Principal principal, @Valid @ModelAttribute("message") Message message, BindingResult result,
+                             @PathVariable("id") Long eventId, Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
+        }
         Event event = eventService.findById(eventId);
 
         if(result.hasErrors()){
@@ -160,46 +316,32 @@ public class MainController {
         }
         else{
             Message newMessage = new Message(message.getContent());
-            newMessage.setUser(userService.findById(userId));
+            newMessage.setUser(user);
             newMessage.setEvent(event);
             messageService.addMessage(newMessage);
             return "redirect:/event/" + eventId;
         }
     }
 
-    @RequestMapping("/event/delete/{id}")
-    public String deleteEvent(@PathVariable("id") Long eventId, Model model, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
-        }
-        Long userId = (Long) session.getAttribute("userId");
-        User user = userService.findById(userId);
-        Event event = eventService.findById(eventId);
-
-        for(Message message : messageService.eventMessages(eventId)){
-            messageService.deleteMessage(message);
-        }
-        eventService.deleteEvent(event);
-
-        return "redirect:/dashboard";
-    }
-
     @GetMapping("/search")
-    public String search(Model model, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String search(Principal principal, Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
-        User user = userService.findById((Long) session.getAttribute("userId"));
+        model.addAttribute("user", user);
         model.addAttribute("events", eventService.getNonUserEvents(user));
-
         return "search";
     }
 
     @PostMapping("/search")
-    public String searchBy(@RequestParam("search") String search, @RequestParam("selectedOption") String selectedOption,
-                           Model model, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String searchBy(Principal principal, @RequestParam("search") String search,
+                           @RequestParam("selectedOption") String selectedOption){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
 
         if(selectedOption.equals("eventName")){
@@ -215,75 +357,71 @@ public class MainController {
     }
 
     @RequestMapping("/event/join/{id}")
-    public String joinEvent(@PathVariable("id") Long eventId, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String joinEvent(Principal principal, @PathVariable("id") Long eventId){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
-        Long userId = (Long) session.getAttribute("userId");
-        User user = userService.findById(userId);
         Event event = eventService.findById(eventId);
         user.getEvents().add(event);
         userService.updateUser(user);
-
         return "redirect:/search";
     }
 
     @RequestMapping("/event/leave/{id}")
-    public String leaveEvent(@PathVariable("id") Long eventId, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String leaveEvent(Principal principal, @PathVariable("id") Long eventId){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
-        Long userId = (Long) session.getAttribute("userId");
-        User user = userService.findById(userId);
         Event event = eventService.findById(eventId);
         user.getEvents().remove(event);
         userService.updateUser(user);
-
         return "redirect:/search";
     }
 
     @GetMapping("/search/event/{eventName}")
-    public String searchByEventName(@PathVariable("eventName") String eventName, Model model, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String searchByEventName(Principal principal, @PathVariable("eventName") String eventName, Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
-        Long id = (Long) session.getAttribute("userId");
+        model.addAttribute("user", user);
         List<Event> events = eventService.getEventsByName(eventName);
         model.addAttribute("events", events);
         return "search_opt1";
     }
 
     @GetMapping("/search/location/{locationName}")
-    public String searchByLocationName(@PathVariable("locationName") String locationName, Model model,
-                                       HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String searchByLocationName(Principal principal, @PathVariable("locationName") String locationName,
+                                       Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
+        model.addAttribute("user", user);
         List<Event> events = eventService.getEventsByLocation(locationName);
         model.addAttribute("events", events);
         return "search_opt2";
     }
 
     @GetMapping("/search/creator/{creator}")
-    public String searchByCreatorName(@PathVariable("creator") String creator, Model model, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
+    public String searchByCreatorName(Principal principal, @PathVariable("creator") String creator, Model model){
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        if(user == null){
+            return "redirect:/";
         }
+        model.addAttribute("user", user);
         List<Event> events = eventService.getEventsByCreatorName(creator);
         model.addAttribute("events", events);
         return "search_opt3";
     }
 
-    @GetMapping("/account/{id}")
-    public String userDetails(@PathVariable("id") Long id, Model model, HttpSession session){
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
-        }
-        Date todaysDate = new Date();
-        model.addAttribute("user", userService.findById(id));
-        model.addAttribute("futureEvents", eventService.getEventsAfterDate(todaysDate));
-        return "user_details";
-    }
 
 //    @GetMapping("/account/edit/{id}")
 //    public String editUser(@PathVariable("id") Long id, HttpSession session){

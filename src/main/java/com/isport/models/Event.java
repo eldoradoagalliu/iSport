@@ -35,6 +35,7 @@ public class Event {
     @Min(value=2, message="There must be at least 2 attendees")
     private Long attendees;
 
+    @Future(message = "The Event Date must be a date in the future!")
     @NotNull(message = "Event Date is required!")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date date;
@@ -205,7 +206,7 @@ public class Event {
         this.messages = messages;
     }
 
-    public int getNumberOfAttendees(){
+    public int getNumberOfAttenders(){
         return users.size();
     }
 

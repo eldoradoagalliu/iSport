@@ -15,73 +15,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
 </head>
 <body class="container" style="background: #037759">
-<div style="font-weight: 600; width: 1000px; border: 3px solid black; background: #ebd402; margin-top: 20px; margin-left: 60px; padding: 20px; font-size: 20px">
-    <div class="text-center"><img src="/images/iSport_logo.png" style=" width: 160px; height: 180px; border: 3px solid black;"/></div>
+<div style="font-weight: 600; width: 1000px; border: 3px solid black; background: #ebd402; margin-top: 10px; margin-left: 60px; padding: 20px; font-size: 18px">
+    <div class="text-center"><img src="/images/iSport_logo.png" style=" width: 140px; height: 160px; border: 3px solid black;"/></div>
     <h2 class="text-center" style="font-size: 24px; font-weight: bold">Free Pickup Game Finder and Organizer</h2>
-    <div class="d-flex align-content-center justify-content-evenly" style="margin-top: 10px">
-        <div style="width: 500px; font-weight: 600; margin-left: 20px; margin-top: 13px">
-            <h2 class="text-decoration-underline text-center" style="font-weight: 600">Register</h2>
-            <%--@elvariable id="newUser" type="newUser"--%>
-            <form:form action="/register" method="post" modelAttribute="newUser">
-                <div>
-                    <form:label path="firstName">First Name: </form:label>
-                    <form:input path="firstName" style="margin-left: 40px"/>
-                    <div><form:errors path="firstName" class="text-danger"/></div>
-                </div>
 
-                <div style="margin-top: 10px">
-                    <form:label path="lastName">Last Name: </form:label>
-                    <form:input path="lastName" style="margin-left: 40px"/>
-                    <div><form:errors path="lastName" class="text-danger"/></div>
-                </div>
-
-                <div style="margin-top: 10px">
-                    <form:label path="email">Email: </form:label>
-                    <form:input path="email" style="margin-left: 95px"/>
-                    <div><form:errors path="email" class="text-danger"/></div>
-                </div>
-
-                <div style="margin-top: 10px">
-                    <form:label path="password">Password: </form:label>
-                    <form:input type="password" path="password" style="margin-left: 55px"/>
-                    <div><form:errors path="password" class="text-danger"/></div>
-                </div>
-
-                <div style="margin-top: 10px">
-                    <form:label path="confirm">Confirm PW: </form:label>
-                    <form:input type="password" path="confirm" style="margin-left: 38px"/>
-                    <div><form:errors path="confirm" class="text-danger"/></div>
-                </div>
-
-                <div style="margin-top: 10px">
-                    <form:label path="birthdate">Birthdate: </form:label>
-                    <form:input type="date" path="birthdate" max='2010-01-01' style="margin-left: 65px"/>
-                    <div><form:errors path="birthdate" class="text-danger"/></div>
-                </div>
-
-                <div style="margin-left: 270px"><button style="box-shadow: 1px 1px black; border: 2px solid black; font-size: 18px; font-weight: 600; color: white; padding: 3px 20px; background: #037759" class="btn">Register</button></div>
-            </form:form>
-        </div>
-
-        <div style="width: 500px; font-weight: 600; margin-left: 10px">
-            <%--@elvariable id="newLogin" type="newLogin"--%>
-            <form:form action="/login" method="post" modelAttribute="newLogin">
+    <div class="form-login" style="border: 2px solid black">
+        <%--@elvariable id="user" type="user"--%>
+            <form:form action="/login" method="post" modelAttribute="user">
                 <h2 class="text-decoration-underline text-center" style="font-weight: 600">Login</h2>
-                <div style="margin-top: 10px">
-                    <form:label path="email">Email: </form:label>
-                    <form:input path="email" style="margin-left: 75px"/>
-                    <div><form:errors path="email" class="text-danger"/></div>
+                <c:if test="${logoutMessage != null}">
+                    <div class="text-success text-center"><c:out value="${logoutMessage}"></c:out></div>
+                </c:if>
+                <c:if test="${errorMessage != null}">
+                    <div class="text-danger text-center"><c:out value="${errorMessage}"></c:out></div>
+                </c:if>
+                <div class="mb-3 d-flex align-content-center">
+                    <form:label path="email" class="col-sm-2 col-form-label">Email: </form:label>
+                    <form:input path="email" class="form-control" required="required" style="margin-left: 60px"/>
                 </div>
-
-                <div style="margin-top: 10px">
-                    <form:label path="password">Password: </form:label>
-                    <form:input type="password" path="password" style="margin-left: 35px"/>
-                    <div><form:errors path="password" class="text-danger"/></div>
+                <div class="mb-3 d-flex align-content-center">
+                    <form:label path="password" class="col-sm-2 col-form-label">Password: </form:label>
+                    <form:input path="password" type="password" class="form-control" required="required" style="margin-left: 60px"/>
                 </div>
-
-                <div style="margin-left: 270px"><button style="box-shadow: 1px 1px black; border: 2px solid black; font-size: 18px; font-weight: 600; color: white; padding: 3px 20px; background: #037759" class="btn">Login</button></div>
+                <button class="btn btn-success" style="font-size: 18px; color: white; width: 250px; margin-left: 130px">Login</button>
+                <div style="margin-top: 5px">Don't have an account?<a href="/register">Register here</a></div>
             </form:form>
-        </div>
     </div>
 </div>
 <footer class="text-center text-white m-1 text-decoration-underline">Copyright © 2022 - Eldorado Agalliu</footer>

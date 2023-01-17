@@ -1,0 +1,11 @@
+*{
+    padding: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-image: url("../images/adminpage.jpg");
+    background-position: center;
+    color: white;
+    font-weight: 600;
+}

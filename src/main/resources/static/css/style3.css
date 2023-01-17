@@ -2,6 +2,13 @@
     font-family: 'Poppins', sans-serif;
 }
 
+body {
+    background-image: url("../images/adminpage.jpg");
+    background-position: center;
+    color: black;
+    font-weight: 600;
+}
+
 input {
     border: 2px solid black;
     width: 200px;
@@ -9,28 +16,10 @@ input {
     font-weight: 600;
 }
 
-table tr, th, td {
-    border: 2px solid black;
-    border-collapse: collapse;
-}
-
-th, td {
-    text-align: center;
-}
-
 .eventInput{
     margin-left: 245px;
 }
 
 .eventInput input, label{
-    font-weight: 600;
-}
-
-.scroll{
-    overflow-y: auto;
-    height: 195px;
-}
-
-option{
     font-weight: 600;
 }

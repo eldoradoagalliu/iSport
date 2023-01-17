@@ -1,76 +1,56 @@
 package com.isport.services;
 
 import com.isport.models.Event;
-import com.isport.models.LoginUser;
 import com.isport.models.User;
+import com.isport.repositories.RoleRepository;
 import com.isport.repositories.UserRepository;
 
-import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
     private final UserRepository userRepo;
+    private final RoleRepository roleRepo;
+    private final BCryptPasswordEncoder bCryptPwEncoder;
 
-    public UserService(UserRepository userRepo) {
+    public UserService(UserRepository userRepo, RoleRepository roleRepo, BCryptPasswordEncoder bCryptPwEncoder) {
         this.userRepo = userRepo;
+        this.roleRepo = roleRepo;
+        this.bCryptPwEncoder = bCryptPwEncoder;
     }
 
-    public User register(User newUser, BindingResult result) {
-        Optional<User> potentialUser = userRepo.findByEmail(newUser.getEmail());
-
-        if(potentialUser.isPresent()) {
-            result.rejectValue("email", "Matches", "An account with that email already exists!");
-        }
-
-        if(!newUser.getPassword().equals(newUser.getConfirm())) {
-            result.rejectValue("confirm", "Matches", "The Confirm Password must match Password!");
-        }
-
-        if(result.hasErrors()) {
-            return null;
-        }
-
-        String hashed = BCrypt.hashpw(newUser.getPassword(), BCrypt.gensalt());
-        newUser.setPassword(hashed);
-        return userRepo.save(newUser);
+    public void newUser(User user, String role) {
+        user.setPassword(bCryptPwEncoder.encode(user.getPassword()));
+        user.setRoles(roleRepo.findByName(role));
+        userRepo.save(user);
     }
 
-    public User login(LoginUser newLogin, BindingResult result) {
-        Optional<User> potentialUser = userRepo.findByEmail(newLogin.getEmail());
-
-        if(!potentialUser.isPresent()) {
-            result.rejectValue("email", "Matches", "User not found!");
-            return null;
-        }
-        User user = potentialUser.get();
-
-        if(!BCrypt.checkpw(newLogin.getPassword(), user.getPassword())) {
-            result.rejectValue("password", "Matches", "Invalid Password!");
-        }
-
-        if(result.hasErrors()) {
-            return null;
-        }
-        return user;
-    }
-
-    public List<User> allUsers(){
+    public List<User> allUsers() {
         return userRepo.findAll();
     }
 
-    public User findById(Long id){
-        Optional<User> optionalUser = userRepo.findById(id);
-        if(optionalUser.isPresent()) return optionalUser.get();
-        else return null;
+    public User findById(Long id) {
+        return userRepo.findByIdIs(id);
+    }
+    public User findByEmail(String email) {
+        return userRepo.findByEmail(email);
     }
 
-    public User updateUser(User user){
+    public void updateUser(User user) {
+        userRepo.save(user);
+    }
+
+    public User upgradeUser(User user) {
+        user.setRoles(roleRepo.findByName("ROLE_ADMIN"));
         return userRepo.save(user);
+    }
+
+    public void deleteUser(User user) {
+        userRepo.delete(user);
     }
 
     public List<User> getAttendedEvents(Event event){
@@ -81,11 +61,17 @@ public class UserService {
         return userRepo.findByEventsNotContains(event);
     }
 
-//    public boolean containsUser(Event event, Long userId){
-//        List<User> users = event.getUsers();
-//        for(User user : users){
-//            if(user.getId() == userId) return true;
+//    public List<User> getAllNonAdminUsers(){
+//        List<User> nonAdminUsers = new ArrayList<>();
+//        List<User> users = allUsers();
+//        for (User user : users){
+//            if(user.getId() > 1){
+//                nonAdminUsers.add(user);
+//            }
 //        }
-//        return false;
+//        return nonAdminUsers;
 //    }
+    public List<User> getNonAdminUsers(){
+        return userRepo.getNonAdminUsers();
+    }
 }

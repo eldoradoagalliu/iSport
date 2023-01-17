@@ -22,7 +22,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav" style="margin-left: 540px">
+            <ul class="navbar-nav" style="margin-left: 460px">
                 <li class="nav-item" style="margin-left: 20px">
                     <a class="nav-link active" aria-current="page" href="/dashboard">Home</a>
                 </li>
@@ -37,7 +37,13 @@
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                 </svg></li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/account/${userId}" tabindex="-1" aria-disabled="true">Account</a>
+                    <a class="nav-link active" href="/account/${user.id}" tabindex="-1" aria-disabled="true">Account</a>
+                </li>
+                <li class="nav-item">
+                    <form id="logoutForm" method="POST" action="/logout">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <input type="submit" value="Logout" style="border: none; background: transparent; color: white; font-weight: 500; width: 70px"/>
+                    </form>
                 </li>
             </ul>
         </div>
@@ -49,11 +55,7 @@
         <div>Name: <c:out value="${user.fullName()}"/></div>
         <div>Email: <c:out value="${user.email}"/></div>
         <div>Birthdate: <c:out value="${user.birthdateFormatter()}"/></div>
-<%--        <c:if test="${user.id == userId}">--%>
-<%--            <form action="/account/edit/${user.id}">--%>
-<%--                <div style="margin-left: 400px; margin-top: 200px"><button style="box-shadow: 1px 1px black; border: 2px solid black; font-size: 18px; font-weight: 600; color: white; padding: 3px 20px" class="btn btn-danger">Edit</button></div>--%>
-<%--            </form>--%>
-<%--        </c:if>--%>
+
         <div style="margin-top: 20px">Event History:</div>
         <div style="overflow-y: auto; height: 100px">
             <c:forEach var="event" items="${user.getEvents()}">

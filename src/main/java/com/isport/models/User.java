@@ -15,29 +15,27 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message="First Name is required!")
-    @Size(min=3, max=30, message="First Name must have more than 3 characters")
+    @NotEmpty
+    @Size(min=3, max=30)
     private String firstName;
 
-    @NotEmpty(message="Last Name is required!")
-    @Size(min=3, max=30, message="Last Name must have more than 3 characters")
+    @NotEmpty
+    @Size(min=3, max=30)
     private String lastName;
 
-    @NotEmpty(message="Email is required!")
-    @Email(message="Please enter a valid email!")
+    @NotEmpty
+    @Email
     private String email;
 
-    @NotEmpty(message="Password is required!")
-    @Size(min=8, max=128, message="Password must be greater than 8 characters")
+    @NotEmpty
+    @Size(min=8, max=128)
     private String password;
 
     @Transient
-    @NotEmpty(message="Confirm Password is required!")
-    @Size(min=8, max=128, message="Confirm Password must be greater than 8 characters")
     private String confirm;
 
-    @Past(message = "The birthdate must be a past date!")
-    @NotNull(message="Birthdate is required!")
+    @Past
+    @NotNull
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date birthdate;
 
@@ -49,6 +47,8 @@ public class User {
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date updatedAt;
 
+    private Date lastLogin;
+
     @PrePersist
     protected void onCreate(){
         this.createdAt = new Date();
@@ -57,6 +57,14 @@ public class User {
     protected void onUpdate(){
         this.updatedAt = new Date();
     }
+
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles;
 
     @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(
@@ -156,6 +164,22 @@ public class User {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 
     public List<Event> getEvents() {

@@ -37,14 +37,14 @@
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                 </svg></li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/account/${userId}" tabindex="-1" aria-disabled="true">Account</a>
+                    <a class="nav-link active" href="/account/${user.id}" tabindex="-1" aria-disabled="true">Account</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
-<div style="font-weight: 600; width: 1000px; height: 580px;background: #ebd402;margin-left: 50px; padding: 20px; font-size: 20px">
-    <form action="/search" method="post">
+<div style="font-weight: 600; width: 1000px; height: 580px;background: #ebd402;margin-left: 50px; padding: 20px; font-size: 18px">
+    <form:form action="/search" method="post">
         <div class="d-flex align-content-center" style="margin-bottom: 10px">
             <h1 style="margin-left: 10px">Search by:</h1>
             <select name="selectedOption" id="selectedOption" style="margin-left: 20px; border: 2px solid black; width: 200px;  height: 40px; font-weight: 600; margin-top: 7px">
@@ -55,8 +55,7 @@
             <div style="margin-left:150px; margin-top: 7px"><input type="text" name="search" id="search" placeholder="Search" required="required"/></div>
             <div style="margin-left: 20px; margin-top: 7px"><button style="box-shadow: 1px 1px black; border: 2px solid black; font-size: 18px; font-weight: 600; color: white; padding: 3px 20px; background: #037759" class="btn">Submit</button></div>
         </div>
-
-    </form>
+    </form:form>
 
     <table class="table table-secondary table-striped table-hover">
         <thead>
@@ -72,13 +71,13 @@
             <tr>
                 <td><a href="/event/${event.id}" style="color: black; text-decoration: none">${event.eventName}</a></td>
                 <td>${event.location}</td>
-                <td>${event.getNumberOfAttendees()}/${event.attendees}</td>
+                <td>${event.getNumberOfAttenders()}/${event.attendees}</td>
                 <td>${event.fullDateFormatter()}</td>
                 <td><a href="/account/${event.creator.id}" class="text-dark">${event.creator.fullName()}</a></td>
                 <td>
-                    <c:if test="${event.getNumberOfAttendees() == event.attendees}">Full</c:if>
-                    <c:if test="${event.getNumberOfAttendees() < event.attendees && !event.containsUser(userId)}"><a href="/event/join/${event.id}">Join event</a></c:if>
-                    <c:if test="${event.containsUser(userId)}"><a href="/event/leave/${event.id}" class="text-danger">Leave event</a></c:if>
+                    <c:if test="${event.getNumberOfAttenders() == event.attendees}">Full</c:if>
+                    <c:if test="${event.getNumberOfAttenders() < event.attendees && !event.containsUser(user.id)}"><a href="/event/join/${event.id}">Join event</a></c:if>
+                    <c:if test="${event.containsUser(user.id)}"><a href="/event/leave/${event.id}" class="text-danger">Leave event</a></c:if>
                 </td>
             </tr>
         </c:forEach>
