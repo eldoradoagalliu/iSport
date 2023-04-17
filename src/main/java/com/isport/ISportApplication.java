@@ -17,9 +17,9 @@ public class ISportApplication {
         //Add the dependencies of Java DB connector on the project structure!!!
         //DB properties
         //DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-        String url = "jdbc:mysql://localhost:3306/isports_schema";
-        String username = "root";
-        String password = "root";
+        String url = "jdbc:mysql://localhost:3306/your-schema";
+        String username = "";
+        String password = "";
         Connection connection = DriverManager.getConnection(url, username, password);
 
         ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM `roles`");
