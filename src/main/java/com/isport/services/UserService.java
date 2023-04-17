@@ -8,8 +8,9 @@ import com.isport.repositories.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -23,55 +24,67 @@ public class UserService {
         this.bCryptPwEncoder = bCryptPwEncoder;
     }
 
-    public void newUser(User user, String role) {
+    public void createUser(User user, String role) {
         user.setPassword(bCryptPwEncoder.encode(user.getPassword()));
         user.setRoles(roleRepo.findByName(role));
         userRepo.save(user);
     }
 
-    public List<User> allUsers() {
+    public List<User> getAllUsers() {
         return userRepo.findAll();
     }
 
-    public User findById(Long id) {
+    public User findUser(Long id) {
         return userRepo.findByIdIs(id);
     }
-    public User findByEmail(String email) {
+
+    public User findUser(String email) {
         return userRepo.findByEmail(email);
     }
 
-    public void updateUser(User user) {
+    public void saveUser(User user) {
         userRepo.save(user);
     }
 
-    public User upgradeUser(User user) {
+    public void upgradeUser(User user) {
         user.setRoles(roleRepo.findByName("ROLE_ADMIN"));
-        return userRepo.save(user);
+        userRepo.save(user);
+    }
+
+    public Byte changeUserPassword(Long userId, String oldPassword, String newPassword) {
+        User currentUser = findUser(userId);
+        String encodedNewPassword = bCryptPwEncoder.encode(newPassword);
+
+        if(bCryptPwEncoder.matches(oldPassword, currentUser.getPassword())) {
+            if(bCryptPwEncoder.matches(newPassword, currentUser.getPassword())) {
+                return 1;
+            } else {
+                currentUser.setPassword(encodedNewPassword);
+                userRepo.save(currentUser);
+                return 2;
+            }
+        } else {
+            return 0;
+        }
     }
 
     public void deleteUser(User user) {
         userRepo.delete(user);
     }
 
-    public List<User> getAttendedEvents(Event event){
+    public List<User> getEventAttendees(Event event) {
         return userRepo.findAllByEvents(event);
     }
 
-    public List<User> getUnAttendedEvents(Event event){
+    public List<User> getNonEventAttendees(Event event) {
         return userRepo.findByEventsNotContains(event);
     }
 
-//    public List<User> getAllNonAdminUsers(){
-//        List<User> nonAdminUsers = new ArrayList<>();
-//        List<User> users = allUsers();
-//        for (User user : users){
-//            if(user.getId() > 1){
-//                nonAdminUsers.add(user);
-//            }
-//        }
-//        return nonAdminUsers;
-//    }
-    public List<User> getNonAdminUsers(){
+    public List<User> getNonAdminUsers() {
         return userRepo.getNonAdminUsers();
+    }
+
+    public Boolean principalIsNull(Principal principal) {
+        return Objects.isNull(findUser(principal.getName()));
     }
 }

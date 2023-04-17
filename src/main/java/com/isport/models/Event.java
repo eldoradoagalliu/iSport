@@ -8,7 +8,6 @@ import javax.validation.constraints.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "events")
@@ -17,52 +16,48 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message="Event Name is required!")
-    @Size(min=4, max=30, message="Event Name must be between 4 and 30 characters")
+    @NotEmpty
+    @Size(min = 4, max = 30)
     private String eventName;
 
-    @NotEmpty(message="Location is required!")
-    @Size(min=3, max=255, message="Location must be between more than 3 characters")
+    @NotEmpty
+    @Size(min = 3, max = 255)
     private String location;
 
-    @NotNull(message = "Latitude is required!")
+    @NotNull
     private Double latitude;
 
-    @NotNull(message = "Latitude is required!")
+    @NotNull
     private Double longitude;
 
-    @NotNull(message="The Number of Attendees is required!")
-    @Min(value=2, message="There must be at least 2 attendees")
+    @NotNull
+    @Min(value = 2)
     private Long attendees;
 
-    @Future(message = "The Event Date must be a date in the future!")
-    @NotNull(message = "Event Date is required!")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    private Date date;
+    private Date eventDateTime;
 
-    @NotEmpty(message = "Event Time is required!")
-    private String time;
-
-    @NotEmpty(message="Description is required!")
-    @Size(min=3, message="Description must be at least 3 characters long")
+    @NotEmpty
+    @Size(min = 3)
     private String description;
 
-    @Column(updatable=false)
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @Column(updatable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createdAt;
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date updatedAt;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         this.createdAt = new Date();
     }
+
     @PreUpdate
-    protected void onUpdate(){
+    protected void onUpdate() {
         this.updatedAt = new Date();
     }
 
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_events",
             joinColumns = @JoinColumn(name = "event_id"),
@@ -70,28 +65,27 @@ public class Event {
     )
     private List<User> users;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User creator;
 
-    @Column(updatable=false)
-    @OneToMany(mappedBy="event", fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Message> messages;
 
-    public Event(){
+    public Event() {
 
     }
 
-    public Event(String eventName, String location, Double latitude, Double longitude, Long attendees, Date date,
-                 String time, String description) {
+    public Event(String eventName, String location, Double latitude, Double longitude, Long attendees, Date eventDateTime,
+                 String description, User creator) {
         this.eventName = eventName;
         this.location = location;
         this.latitude = latitude;
         this.longitude = longitude;
         this.attendees = attendees;
-        this.date = date;
-        this.time = time;
+        this.eventDateTime = eventDateTime;
         this.description = description;
+        this.creator = creator;
     }
 
     public Long getId() {
@@ -142,20 +136,12 @@ public class Event {
         this.attendees = attendees;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getEventDateTime() {
+        return eventDateTime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
+    public void setEventDateTime(Date eventDateTime) {
+        this.eventDateTime = eventDateTime;
     }
 
     public String getDescription() {
@@ -206,20 +192,36 @@ public class Event {
         this.messages = messages;
     }
 
-    public int getNumberOfAttenders(){
+    public int getNumberOfAttenders() {
         return users.size();
     }
 
-    public String fullDateFormatter(){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("M/d/yyyy");
-        String eventDate = simpleDateFormat.format(date);
-        return eventDate + " " + time;
+    public String fullDateFormatter() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/M/yyyy HH:mm");
+        String eventDate = simpleDateFormat.format(eventDateTime);
+        return eventDate;
     }
 
-    public boolean containsUser(Long id){
-        for(User user : users){
-            if(user.getId().equals(id)) return true;
+    public String fullTimeFormatter() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        String eventTime = simpleDateFormat.format(eventDateTime);
+        return eventTime;
+    }
+
+    public boolean containsUser(Long id) {
+        for (User user : users) {
+            if (user.getId().equals(id)) return true;
         }
         return false;
+    }
+
+    public String getTime() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        return simpleDateFormat.format(eventDateTime);
+    }
+
+    public String getDate() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return simpleDateFormat.format(eventDateTime);
     }
 }

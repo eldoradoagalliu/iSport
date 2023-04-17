@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 public class UserDetailsServiceImplementation implements UserDetailsService {
-    private UserRepository userRepo;
+    private final UserRepository userRepo;
 
     public UserDetailsServiceImplementation(UserRepository userRepo) {
         this.userRepo = userRepo;
@@ -26,16 +26,16 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepo.findByEmail(email);
 
-        if(user == null) {
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
 
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities(user));
     }
 
-    private List<GrantedAuthority> getAuthorities(User user){
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        for(Role role : user.getRoles()) {
+    private List<GrantedAuthority> getAuthorities(User user) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : user.getRoles()) {
             GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role.getName());
             authorities.add(grantedAuthority);
         }

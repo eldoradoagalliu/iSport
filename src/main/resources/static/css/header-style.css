@@ -1,0 +1,38 @@
+* {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+body {
+    background: #037759;
+    margin: 0 8% auto;
+}
+
+body, nav {
+    padding-top: 0px;
+}
+
+nav {
+    height: 4rem;
+    width: 100%;
+}
+
+#navbarDropdown {
+    width: 100%;
+    margin-left: 60%;
+    z-index: 1;
+}
+
+.nav-border, .main-part, #navbarDropdown {
+    border-radius: 5px;
+}
+
+.logo-font {
+    font-size: 28px;
+}
+
+.logout-button {
+    border: none;
+    background: transparent;
+    color: white;
+}

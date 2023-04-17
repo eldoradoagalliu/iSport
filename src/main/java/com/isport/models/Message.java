@@ -14,32 +14,32 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message="The message field must not be empty")
-    @Size(min=2, max=255, message="The Content of the Message must be at least 2 characters")
+    @NotEmpty
+    @Size(min = 2, max = 255)
     private String content;
 
-    @Column(updatable=false)
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @Column(updatable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createdAt;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         this.createdAt = new Date();
     }
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="event_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
     private Event event;
 
-    public Message(){
+    public Message() {
 
     }
 
-    public Message(String content){
+    public Message(String content) {
         this.content = content;
     }
 

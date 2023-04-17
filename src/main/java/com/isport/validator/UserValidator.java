@@ -7,7 +7,6 @@ import org.springframework.validation.Validator;
 
 @Component
 public class UserValidator implements Validator {
-
     @Override
     public boolean supports(Class<?> clazz) {
         return User.class.equals(clazz);
@@ -17,7 +16,7 @@ public class UserValidator implements Validator {
     public void validate(Object object, Errors errors) {
         User user = (User) object;
 
-        if(!user.getConfirm().equals(user.getPassword())) {
+        if (!user.getConfirm().equals(user.getPassword())) {
             errors.rejectValue("confirm", "Match");
         }
     }

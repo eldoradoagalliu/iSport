@@ -16,19 +16,18 @@ public class User {
     private Long id;
 
     @NotEmpty
-    @Size(min=3, max=30)
+    @Size(min = 3, max = 30)
     private String firstName;
 
     @NotEmpty
-    @Size(min=3, max=30)
+    @Size(min = 3, max = 30)
     private String lastName;
 
     @NotEmpty
     @Email
     private String email;
 
-    @NotEmpty
-    @Size(min=8, max=128)
+    @Size(min = 8, max = 128)
     private String password;
 
     @Transient
@@ -36,29 +35,41 @@ public class User {
 
     @Past
     @NotNull
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthdate;
 
-    private String photoURL;
+    //This attribute stores the name of the profile photo
+    @Column(nullable = true)
+    private String profilePhoto;
 
-    @Column(updatable=false)
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    //The below method returns the path of the profile photo for the user
+    @Transient
+    public String getProfilePhotoPath() {
+        if (profilePhoto == null || id == null) return null;
+
+        return "/profile-photos/" + id + "/" + profilePhoto;
+    }
+
+    @Column(updatable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createdAt;
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date updatedAt;
 
     private Date lastLogin;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         this.createdAt = new Date();
     }
+
     @PreUpdate
-    protected void onUpdate(){
+    protected void onUpdate() {
         this.updatedAt = new Date();
     }
 
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -66,7 +77,7 @@ public class User {
     )
     private List<Role> roles;
 
-    @ManyToMany(fetch=FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_events",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -74,12 +85,11 @@ public class User {
     )
     private List<Event> events;
 
-    @Column(updatable=false)
-    @OneToMany(mappedBy="creator", fetch=FetchType.LAZY)
+    @Column(updatable = false)
+    @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Event> eventsCreated;
 
-    @Column(updatable=false)
-    @OneToMany(mappedBy="user", fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Message> messages;
 
     public User() {
@@ -142,12 +152,12 @@ public class User {
         this.birthdate = birthdate;
     }
 
-    public String getPhotoURL() {
-        return photoURL;
+    public String getProfilePhoto() {
+        return profilePhoto;
     }
 
-    public void setPhotoURL(String photoURL) {
-        this.photoURL = photoURL;
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 
     public Date getCreatedAt() {
@@ -206,13 +216,12 @@ public class User {
         this.messages = messages;
     }
 
-    public String fullName(){
+    public String getFullName() {
         return firstName + " " + lastName;
     }
 
-    public String birthdateFormatter(){
+    public String birthdateFormatter() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMMM yyyy");
-        String birthdateString = simpleDateFormat.format(birthdate);
-        return birthdateString;
+        return simpleDateFormat.format(birthdate);
     }
 }

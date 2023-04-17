@@ -1,11 +1,18 @@
-*{
+* {
     padding: 10px;
     font-family: 'Poppins', sans-serif;
 }
 
 body {
     background-image: url("../images/adminpage.jpg");
-    background-position: center;
+    background-position: top;
+}
+
+body, .logout, .link {
     color: white;
     font-weight: 600;
+}
+
+.link {
+    text-decoration: none;
 }

@@ -4,6 +4,7 @@ import com.isport.models.Message;
 import com.isport.repositories.MessageRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -14,19 +15,29 @@ public class MessageService {
         this.messageRepo = messageRepo;
     }
 
-    public List<Message> allMessages(){
+    public List<Message> getAllMessages() {
         return messageRepo.findAll();
     }
 
-    public List<Message> eventMessages(Long eventId){
+    public List<Message> eventMessages(Long eventId) {
         return messageRepo.findByEventIdIs(eventId);
     }
 
-    public Message addMessage(Message message){
-        return messageRepo.save(message);
+    public void addMessage(Message message) {
+         messageRepo.save(message);
     }
 
-    public void deleteMessage(Message message){
+    public void deleteMessage(Message message) {
         messageRepo.delete(message);
+    }
+
+    public List<Message> getUserEventMessages(Long userId, Long eventId) {
+        List<Message> userEventMessages = new ArrayList<>();
+        for (Message message : getAllMessages()) {
+            if (message.getUser().getId().equals(userId) && message.getEvent().getId().equals(eventId)) {
+                userEventMessages.add(message);
+            }
+        }
+        return userEventMessages;
     }
 }
