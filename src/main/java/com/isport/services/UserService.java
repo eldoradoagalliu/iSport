@@ -87,4 +87,9 @@ public class UserService {
     public Boolean principalIsNull(Principal principal) {
         return Objects.isNull(findUser(principal.getName()));
     }
+
+    public Boolean isAdmin(Principal principal) {
+        User currentUser = findUser(principal.getName());
+        return currentUser.getRoles().get(0).getName().equals("ADMIN");
+    }
 }

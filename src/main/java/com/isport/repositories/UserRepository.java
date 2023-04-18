@@ -20,6 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByEventsNotContains(Event event);
 
-    @Query(value = "SELECT * FROM isports_schema.users WHERE id != 1;", nativeQuery = true)
+    @Query(value = "SELECT * FROM `your-schema`.`users` WHERE id != 1;", nativeQuery = true)
     List<User> getNonAdminUsers();
 }

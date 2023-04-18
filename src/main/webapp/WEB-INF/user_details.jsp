@@ -55,6 +55,20 @@
 </nav>
 
 <div class="main-part">
+    <div>
+        <c:if test="${emptyPasswordErrorMessage != null}">
+            <div class="text-danger text-center m-1"><c:out value="${emptyPasswordErrorMessage}"></c:out></div>
+        </c:if>
+        <c:if test="${oldPasswordReuseMessage != null}">
+            <div class="text-danger text-center m-1"><c:out value="${oldPasswordReuseMessage}"></c:out></div>
+        </c:if>
+        <c:if test="${incorrectOldPasswordMessage != null}">
+            <div class="text-danger text-center m-1"><c:out value="${incorrectOldPasswordMessage}"></c:out></div>
+        </c:if>
+        <c:if test="${successfulPasswordChangeMessage != null}">
+            <div class="text-success text-center m-1"><c:out value="${successfulPasswordChangeMessage}"></c:out></div>
+        </c:if>
+    </div>
     <div class="d-flex justify-content-between end-part">
         <div class="mb-3">
             <div class="info">
@@ -100,20 +114,6 @@
                             <button class="btn btn-primary mx-1 col-4">Add profile picture</button>
                         </div>
                     </form:form>
-                </c:if>
-            </div>
-            <div>
-                <c:if test="${emptyPasswordErrorMessage != null}">
-                    <div class="text-danger text-center m-1"><c:out value="${emptyPasswordErrorMessage}"></c:out></div>
-                </c:if>
-                <c:if test="${oldPasswordReuseMessage != null}">
-                    <div class="text-danger text-center m-1"><c:out value="${oldPasswordReuseMessage}"></c:out></div>
-                </c:if>
-                <c:if test="${incorrectOldPasswordMessage != null}">
-                    <div class="text-danger text-center m-1"><c:out value="${incorrectOldPasswordMessage}"></c:out></div>
-                </c:if>
-                <c:if test="${successfulPasswordChangeMessage != null}">
-                    <div class="text-success text-center m-1"><c:out value="${successfulPasswordChangeMessage}"></c:out></div>
                 </c:if>
             </div>
             <div class="d-flex float-end mt-4">

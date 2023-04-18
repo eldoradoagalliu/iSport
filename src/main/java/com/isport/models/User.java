@@ -77,7 +77,7 @@ public class User {
     )
     private List<Role> roles;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_events",
             joinColumns = @JoinColumn(name = "user_id"),

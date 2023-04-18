@@ -130,6 +130,10 @@ public class EventController {
             editedEvent.setUsers(currentEvent.getUsers());
             eventService.saveEvent(editedEvent);
 
+            if(userService.isAdmin(principal)) {
+                return "redirect:/";
+            }
+
             return "redirect:/event/{id}";
         }
     }
@@ -138,15 +142,10 @@ public class EventController {
     public String deleteEvent(Principal principal, @PathVariable("id") Long eventId) {
         if (userService.principalIsNull(principal)) return "redirect:/logout";
 
-        User currentUser = userService.findUser(principal.getName());
         Event event = eventService.findEvent(eventId);
         eventService.deleteEvent(event);
 
-        if (currentUser.getRoles().get(0).getName().contains("ADMIN")) {
-            return "redirect:/";
-        }
-
-        return "redirect:/dashboard";
+        return "redirect:/";
     }
 
     @RequestMapping("/event/join/{id}")
@@ -158,7 +157,7 @@ public class EventController {
         currentUser.getEvents().add(event);
         userService.saveUser(currentUser);
 
-        return "redirect:/event/" + eventId;
+        return "redirect:/event/{id}";
     }
 
     @RequestMapping("/event/leave/{id}")

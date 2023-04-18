@@ -99,6 +99,10 @@ public class UserController {
             userService.saveUser(editedUser);
         }
 
+        if(userService.isAdmin(principal)) {
+            return "redirect:/";
+        }
+
         return "redirect:/account/{id}";
     }
 
@@ -134,8 +138,8 @@ public class UserController {
     public String deleteUser(Principal principal, @PathVariable("id") Long userId) {
         if (userService.principalIsNull(principal)) return "redirect:/logout";
 
-        User user = userService.findUser(userId);
-        userService.deleteUser(user);
+        User currentUser = userService.findUser(userId);
+        userService.deleteUser(currentUser);
 
         return "redirect:/";
     }

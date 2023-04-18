@@ -23,6 +23,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByLocationContainsAndEventDateTimeIsAfterOrderByEventDateTimeAsc(String location, Date date);
 
-    @Query(value = "SELECT * FROM isports_schema.events ORDER BY event_date_time ASC;", nativeQuery = true)
+    @Query(value = "SELECT * FROM `your-schema`.`events` ORDER BY event_date_time ASC;", nativeQuery = true)
     List<Event> findAllOrderByEventDateTimeAsc();
 }

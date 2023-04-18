@@ -24,8 +24,8 @@ public class ISportApplication {
 
         ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM `roles`");
         if (!resultSet.next()) {
-            connection.createStatement().executeUpdate("INSERT INTO `isports_schema`.`roles` (`name`) VALUES ('ADMIN');");
-            connection.createStatement().executeUpdate("INSERT INTO `isports_schema`.`roles` (`name`) VALUES ('USER');");
+            connection.createStatement().executeUpdate("INSERT INTO `your-schema`.`roles` (`name`) VALUES ('ADMIN');");
+            connection.createStatement().executeUpdate("INSERT INTO `your-schema`.`roles` (`name`) VALUES ('USER');");
         }
 
         connection.close();

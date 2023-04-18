@@ -18,3 +18,10 @@ Main features of iSport App:
 - User Profile Page (Details, Adding Profile Photos and Editing Option)
 - Search Page for Events by using Event Name, Location or Creator Name
 - Administrator access for editing or deleting App Users or Events.
+
+To run this application you need to add the database url, 
+schema name & details on these files:
+- application.properties
+- UserRepository
+- EventRepository
+- ISportApplication

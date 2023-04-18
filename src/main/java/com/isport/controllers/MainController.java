@@ -44,22 +44,19 @@ public class MainController {
         if (userService.principalIsNull(principal)) return "redirect:/logout";
 
         User currentUser = userService.findUser(principal.getName());
-        if (currentUser != null) {
-            currentUser.setLastLogin(new Date());
-            userService.saveUser(currentUser);
+        currentUser.setLastLogin(new Date());
+        userService.saveUser(currentUser);
 
-            // Admin user will be redirected to the Admin Dashboard Page
-            if (currentUser.getRoles().get(0).getName().contains("ADMIN")) {
-                model.addAttribute("year", Year.now());
-                model.addAttribute("users", userService.getNonAdminUsers());
-                model.addAttribute("events", eventService.getAllEvents());
-                return "admin_dashboard";
-            } else {
-                //Normal users will be redirected to the Event Dashboard Page
-                return "redirect:/dashboard";
-            }
+        // Admin user will be redirected to the Admin Dashboard Page
+        if (userService.isAdmin(principal)) {
+            model.addAttribute("year", Year.now());
+            model.addAttribute("users", userService.getNonAdminUsers());
+            model.addAttribute("events", eventService.getAllEvents());
+            return "admin_dashboard";
+        } else {
+            //Normal users will be redirected to the Event Dashboard Page
+            return "redirect:/dashboard";
         }
-        return "redirect:/logout";
     }
 
     @GetMapping("/register")
@@ -74,7 +71,7 @@ public class MainController {
         userValidator.validate(user, result);
         String password = user.getPassword();
         if (result.hasErrors() || Objects.nonNull(userService.findUser(user.getEmail()))) {
-            if(Objects.nonNull(userService.findUser(user.getEmail()))){
+            if (Objects.nonNull(userService.findUser(user.getEmail()))) {
                 model.addAttribute("emailExistsErrorMessage", "This email has been used by another user!");
             }
 
