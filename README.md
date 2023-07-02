@@ -17,7 +17,7 @@ Main features of iSport App:
 - Ability to join, leave events, chat with other users that are attending the event
 - User Profile Page (Details, Adding Profile Photos and Editing Option)
 - Search Page for Events by using Event Name, Location or Creator Name
-- Administrator access for editing or deleting App Users or Events.
+- Administrator access for editing or deleting App Users or Events
 
 To run this application you need to add the database url, 
 schema name & details on these files:
