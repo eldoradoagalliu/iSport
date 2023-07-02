@@ -3,7 +3,7 @@
 iSport App is a web application made for any user that want to 
 schedule and organize sport events for everyone. 
 
-This app was build with Java SE 8, Spring Framework, 
+This app was built with Java SE 8, Spring Framework, 
 Spring MVC, Spring Security, MySQL, HTML, CSS 
 and Bootstrap.
 
