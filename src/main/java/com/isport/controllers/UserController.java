@@ -53,14 +53,14 @@ public class UserController {
 
     @PostMapping("/uploadProfilePhoto/{id}")
     public String uploadProfilePicture(@RequestParam("photo") MultipartFile multipartFile,
-                                       @PathVariable("id") Long userId )throws IOException {
+                                       @PathVariable("id") Long userId) throws IOException {
         User currentUser = userService.findUser(userId);
 
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
         currentUser.setProfilePhoto(fileName);
         userService.saveUser(currentUser);
 
-        String uploadDir = "profile-photos/" + currentUser.getId() ;
+        String uploadDir = "profile-photos/" + currentUser.getId();
         FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
 
         return "redirect:/account/{id}";
@@ -99,7 +99,7 @@ public class UserController {
             userService.saveUser(editedUser);
         }
 
-        if(userService.isAdmin(principal)) {
+        if (userService.isAdmin(principal)) {
             return "redirect:/";
         }
 
@@ -112,11 +112,11 @@ public class UserController {
                                         @RequestParam("newPassword") String newPassword, Model model) {
         if (userService.principalIsNull(principal)) return "redirect:/logout";
 
-        if(!oldPassword.isEmpty() && !newPassword.isEmpty()) {
+        if (!oldPassword.isEmpty() && !newPassword.isEmpty()) {
             Byte response = userService.changeUserPassword(userId, oldPassword, newPassword);
-            if(response == 0) {
+            if (response == 0) {
                 model.addAttribute("incorrectOldPasswordMessage", INCORRECT_OLD_PASSWORD);
-            } else if(response == 1) {
+            } else if (response == 1) {
                 model.addAttribute("oldPasswordReuseMessage", REUSED_OLD_PASSWORD);
             } else {
                 model.addAttribute("successfulPasswordChangeMessage", SUCCESSFUL_PASSWORD_CHANGE);
