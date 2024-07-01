@@ -19,9 +19,8 @@ public class WebSecurityConfig {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
-                .antMatchers("/resources/**", "/static/**","/webjars/**", "/css/**", "/script/**", "/images/**","/register", "/login").permitAll()
+        http.authorizeRequests()
+                .antMatchers("/resources/**", "/static/**", "/webjars/**", "/css/**", "/script/**", "/images/**", "/register", "/login").permitAll()
                 .antMatchers("/admin/**").access("hasRole('SUPER_ADMIN') or hasRole('ADMIN')")
                 .anyRequest().authenticated()
                 .and()

@@ -2,7 +2,6 @@ package com.isport.controllers;
 
 import com.isport.models.User;
 import com.isport.services.EventService;
-import com.isport.services.MessageService;
 import com.isport.services.UserService;
 import com.isport.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -22,22 +27,20 @@ import java.util.Objects;
 
 @Controller
 public class UserController {
+
     @Autowired
     UserService userService;
 
     @Autowired
     EventService eventService;
 
-    @Autowired
-    MessageService messageService;
+    private static final String REUSED_OLD_PASSWORD = "You are using the old password! Please, try a new one.";
 
-    final String REUSED_OLD_PASSWORD = "You are using the old password! Please, try a new one.";
+    private static final String INCORRECT_OLD_PASSWORD = "Your old password is incorrect";
 
-    final String INCORRECT_OLD_PASSWORD = "Your old password is incorrect";
+    private static final String SUCCESSFUL_PASSWORD_CHANGE = "Password changed successfully!";
 
-    final String SUCCESSFUL_PASSWORD_CHANGE = "Password changed successfully!";
-
-    final String REQUIRED_PASSWORDS = "The old password and new password are required!";
+    private static final String REQUIRED_PASSWORDS = "The old password and new password are required!";
 
     @GetMapping("/account/{id}")
     public String userDetails(Principal principal, @PathVariable("id") Long userId, Model model) {

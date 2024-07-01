@@ -10,7 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -23,6 +30,7 @@ import java.util.Objects;
 
 @Controller
 public class EventController {
+
     @Autowired
     private EventService eventService;
 
@@ -32,9 +40,9 @@ public class EventController {
     @Autowired
     private MessageService messageService;
 
-    final String REQUIRED_EVENT_DATETIME = "Event Date and Time are required!";
+    private static final String REQUIRED_EVENT_DATETIME = "Event Date and Time are required!";
 
-    final String FUTURE_EVENT_DATETIME = "The event date and time must be a date in the future!";
+    private static final String FUTURE_EVENT_DATETIME = "The event date and time must be a date in the future!";
 
     @GetMapping("/new")
     public String add(Principal principal, @ModelAttribute("event") Event event, Model model) {
@@ -67,8 +75,16 @@ public class EventController {
 
             return "new_event";
         } else {
-            Event newEvent = new Event(event.getEventName(), event.getLocation(), event.getLatitude(), event.getLongitude(),
-                    event.getAttendees(), getDateFromString(date, time), event.getDescription(), creator);
+            Event newEvent = Event.builder()
+                    .eventName(event.getEventName())
+                    .location(event.getLocation())
+                    .latitude(event.getLatitude())
+                    .longitude(event.getLongitude())
+                    .attendees(event.getAttendees())
+                    .eventDateTime(getDateFromString(date, time))
+                    .description(event.getDescription())
+                    .creator(creator)
+                    .build();
             eventService.saveEvent(newEvent);
 
             return "redirect:/dashboard";
@@ -130,7 +146,7 @@ public class EventController {
             editedEvent.setUsers(currentEvent.getUsers());
             eventService.saveEvent(editedEvent);
 
-            if(userService.isAdmin(principal)) {
+            if (userService.isAdmin(principal)) {
                 return "redirect:/";
             }
 
@@ -191,10 +207,9 @@ public class EventController {
             model.addAttribute("event", event);
             model.addAttribute("users", userService.getEventAttendees(event));
             model.addAttribute("messages", messageService.eventMessages(eventId));
-
             return "event_details";
         } else {
-            Message newMessage = new Message(message.getContent());
+            Message newMessage = Message.builder().content(message.getContent()).build();
             newMessage.setUser(currentUser);
             newMessage.setEvent(event);
             messageService.addMessage(newMessage);
@@ -214,7 +229,6 @@ public class EventController {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
             return new Date(parsed.getTime());
         }
 
