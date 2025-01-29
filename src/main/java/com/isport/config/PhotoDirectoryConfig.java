@@ -13,7 +13,7 @@ import java.util.List;
 
 @Configuration
 @EnableTransactionManagement
-public class JpaConfiguration implements WebMvcConfigurer {
+public class PhotoDirectoryConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new SpecificationArgumentResolver());
