@@ -1,34 +1,38 @@
-package com.isport.models;
+package com.isport.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "events")
 public class Event {
@@ -92,29 +96,22 @@ public class Event {
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Message> messages;
 
-    public String fullDateFormatter() {
+    public boolean containsUser(Long id) {
+        return users.stream()
+                .anyMatch(user -> user.getId().equals(id));
+    }
+
+    public String getFormattedDateTime() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/M/yyyy HH:mm");
         return simpleDateFormat.format(eventDateTime);
     }
 
-    public String fullTimeFormatter() {
+    public String getFormattedTime() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         return simpleDateFormat.format(eventDateTime);
     }
 
-    public boolean containsUser(Long id) {
-        for (User user : users) {
-            if (user.getId().equals(id)) return true;
-        }
-        return false;
-    }
-
-    public String getTime() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-        return simpleDateFormat.format(eventDateTime);
-    }
-
-    public String getDate() {
+    public String getFormattedDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return simpleDateFormat.format(eventDateTime);
     }

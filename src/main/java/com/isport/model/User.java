@@ -1,28 +1,30 @@
-package com.isport.models;
+package com.isport.model;
 
+import com.isport.enums.UserRole;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.util.StringUtils;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
-import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -58,12 +60,12 @@ public class User {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthdate;
 
-    @Column(nullable = true)
+    @Column
     private String profilePhoto;
 
     @Transient
     public String getProfilePhotoPath() {
-        if (profilePhoto == null || id == null) return null;
+        if (!(StringUtils.hasText(profilePhoto) || StringUtils.hasText(String.valueOf(id)))) return null;
         return "/profile-photos/" + id + "/" + profilePhoto;
     }
 
@@ -113,8 +115,14 @@ public class User {
         return firstName + " " + lastName;
     }
 
-    public String birthdateFormatter() {
+    public String getFormattedBirthdate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMMM yyyy");
         return simpleDateFormat.format(birthdate);
+    }
+
+    public boolean isAdmin() {
+        return roles.stream()
+                .map(Role::getName)
+                .anyMatch(role -> role.equals(UserRole.ADMIN.getRole()));
     }
 }

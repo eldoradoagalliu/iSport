@@ -1,6 +1,6 @@
 package com.isport.validator;
 
-import com.isport.models.User;
+import com.isport.model.User;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
