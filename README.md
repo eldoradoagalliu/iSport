@@ -1,14 +1,14 @@
 # iSport App
 
-iSport App is a web application made for any user that want to 
-schedule and organize sport events for everyone. 
+iSport App is a web application made for any user that want to schedule and organize sport events for everyone.
 
-This app was built with Java SE 8, Spring Framework, 
-Spring MVC, Spring Security, MySQL, HTML, CSS 
-and Bootstrap.
+This app was initially built with Java SE 8, Spring Framework, Spring MVC, Spring Security, MySQL, HTML, CSS and
+Bootstrap. Lately it has been updated to Java 17 and the latest version of Spring.
+---
 
 Main features of iSport App:
 -
+
 - Dynamic UI/UX
 - User Login/Registration with Spring Security
 - Admin Dashboard
@@ -19,9 +19,9 @@ Main features of iSport App:
 - Search Page for Events by using Event Name, Location or Creator Name
 - Administrator access for editing or deleting App Users or Events
 
-To run this application you need to add the database url, 
-schema name & details on these files:
-- application.properties
-- UserRepository
-- EventRepository
-- ISportApplication
+---
+
+To run this application you need to add the database properties on the .env file (check .env.example).
+
+To include the Google Maps feature for the event location, you also need to add your api key on the event_details.jsp
+file.
