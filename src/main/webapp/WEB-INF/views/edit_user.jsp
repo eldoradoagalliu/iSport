@@ -53,7 +53,7 @@
     <h2 class="text-center isport-title m-2">Free Pickup Sport Events Finder and Organizer</h2>
     <div class="edit-user-form">
         <%--@elvariable id="user" type=""--%>
-        <form:form action="/account/${user.id}/edit" method="post" modelAttribute="user">
+        <form:form action="/account/${user.id}" method="post" modelAttribute="user">
             <input type="hidden" name="_method" value="put">
             <h2 class="text-decoration-underline text-center mb-3 edit">Your Account Details</h2>
             <div class="d-flex align-content-center m-1">
