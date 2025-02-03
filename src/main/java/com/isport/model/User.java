@@ -29,9 +29,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static com.isport.constant.ISportConstants.USERS;
+
 @Data
 @Entity
-@Table(name = "users")
+@Table(name = USERS)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,7 +67,7 @@ public class User {
 
     @Transient
     public String getProfilePhotoPath() {
-        if (!(StringUtils.hasText(profilePhoto) || StringUtils.hasText(String.valueOf(id)))) return null;
+        if (!StringUtils.hasText(profilePhoto)) return null;
         return "/profile-photos/" + id + "/" + profilePhoto;
     }
 

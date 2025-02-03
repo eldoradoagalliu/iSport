@@ -20,12 +20,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
+import static com.isport.constant.ISportConstants.MESSAGES;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "messages")
+@Table(name = MESSAGES)
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

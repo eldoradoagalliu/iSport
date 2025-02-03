@@ -10,9 +10,11 @@ import lombok.Data;
 
 import java.util.List;
 
+import static com.isport.constant.ISportConstants.ROLES;
+
 @Data
 @Entity
-@Table(name = "roles")
+@Table(name = ROLES)
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

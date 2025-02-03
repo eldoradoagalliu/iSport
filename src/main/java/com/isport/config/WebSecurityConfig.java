@@ -20,8 +20,8 @@ public class WebSecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/WEB-INF/**", "/login", "/register", "/resources/**", "/static/**",
-                                        "/webjars/**", "/css/**", "/script/**", "/images/**").permitAll()
+                        authorize.requestMatchers("/WEB-INF/**", "/webjars/**", "/css/**", "/images/**",
+                                        "/login", "/register").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority(UserRole.ADMIN.getRole())
                                 .anyRequest().authenticated())
                 .formLogin(form ->

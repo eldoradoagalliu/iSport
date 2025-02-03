@@ -29,12 +29,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static com.isport.constant.ISportConstants.EVENTS;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "events")
+@Table(name = EVENTS)
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,13 +98,17 @@ public class Event {
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Message> messages;
 
+    public int getNumberOfAttenders() {
+        return users.size();
+    }
+
     public boolean containsUser(Long id) {
         return users.stream()
                 .anyMatch(user -> user.getId().equals(id));
     }
 
     public String getFormattedDateTime() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/M/yyyy HH:mm");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm, d MMMM yyyy");
         return simpleDateFormat.format(eventDateTime);
     }
 
