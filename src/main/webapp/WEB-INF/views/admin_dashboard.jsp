@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
@@ -6,6 +6,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +22,8 @@
         <button class="btn btn-primary logout">Logout</button>
     </form>
 </div>
-<c:if test="${users.size() > 0}">
-    <h2>Users using the iSport Appliaction</h2>
+<c:if test="${!users.isEmpty()}">
+    <h2>Users on the iSport Application</h2>
     <table class="table table-hover table-dark table-striped text-center">
         <thead>
         <th>User Name</th>
@@ -30,19 +31,17 @@
         <th>Birthdate</th>
         <th>Actions</th>
         </thead>
-
         <c:forEach var="user" items="${users}">
             <tbody>
             <tr>
-                <td><a href="/account/${user.id}" class="link">${user.getFullName()}</a>
-                </td>
+                <td><a href="/account/${user.id}" class="link">${user.getFullName()}</a></td>
                 <td>${user.email}</td>
-                <td>${user.birthdateFormatter()}</td>
+                <td>${user.getFormattedBirthdate()}</td>
                 <td class="d-flex align-content-center">
-                    <form action="/account/edit/${user.id}">
-                        <button class="btn btn-secondary">Edit</button>
+                    <form action="/account/${user.id}/edit">
+                        <button class="btn btn-warning">Edit</button>
                     </form>
-                    <form:form action="/account/delete/${user.id}" method="post">
+                    <form:form action="/account/${user.id}" method="post">
                         <input type="hidden" name="_method" value="delete">
                         <button class="btn btn-danger">Delete</button>
                     </form:form>
@@ -52,8 +51,7 @@
         </c:forEach>
     </table>
 </c:if>
-
-<c:if test="${events.size() > 0}">
+<c:if test="${!events.isEmpty()}">
     <h2>Events Planned</h2>
     <table class="table table-hover table-dark table-striped text-center">
         <thead>
@@ -63,19 +61,18 @@
         <th>Date</th>
         <th>Actions</th>
         </thead>
-
         <c:forEach var="event" items="${events}">
             <tbody>
             <tr>
                 <td><a href="/event/${event.id}" class="link">${event.eventName}</a></td>
                 <td>${event.location}</td>
                 <td>${event.getNumberOfAttenders()}</td>
-                <td>${event.fullDateFormatter()}</td>
+                <td>${event.getFormattedDateTime()}</td>
                 <td class="d-flex align-content-center">
-                    <form action="event/edit/${event.id}">
-                        <button class="btn btn-secondary">Edit</button>
+                    <form action="event/${event.id}/edit">
+                        <button class="btn btn-warning">Edit</button>
                     </form>
-                    <form:form action="/event/delete/${event.id}" method="post">
+                    <form:form action="/event/${event.id}" method="post">
                         <input type="hidden" name="_method" value="delete">
                         <button class="btn btn-danger">Delete</button>
                     </form:form>

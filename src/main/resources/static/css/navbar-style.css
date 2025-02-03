@@ -17,13 +17,13 @@ nav {
     width: 100%;
 }
 
-#navbarDropdown {
+.navbar-dropdown {
     width: 100%;
     margin-left: 60%;
     z-index: 1;
 }
 
-.nav-border, .main-part, #navbarDropdown {
+.nav-border, .main-part, .navbar-dropdown {
     border-radius: 5px;
 }
 

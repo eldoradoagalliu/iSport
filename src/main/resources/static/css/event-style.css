@@ -33,6 +33,10 @@
     font-weight: 600;
 }
 
+.label-font {
+    font-size: 15px;
+}
+
 .description-input {
     height: 90px;
     resize: none;
@@ -66,7 +70,7 @@
 }
 
 .details {
-    width: 400px;
+    width: 450px;
 }
 
 .event-location {
@@ -96,7 +100,7 @@
 }
 
 .button-font, .send-button {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .event-scroll {
